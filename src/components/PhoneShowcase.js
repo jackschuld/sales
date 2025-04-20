@@ -27,11 +27,11 @@ const BackgroundOverlay = styled.div`
 `;
 
 const PhoneContainer = styled.div`
-  position: fixed;
-  top: 50%;
+  position: ${props => props.position};
+  top: ${props => props.isFixed ? '50%' : `${props.top}px`};
   left: ${props => props.align === 'left' ? '5%' : 'auto'};
   right: ${props => props.align === 'right' ? '5%' : 'auto'};
-  transform: translateY(-50%);
+  transform: ${props => props.isFixed ? 'translateY(-50%)' : 'none'};
   height: 500px;
   width: 100%;
   max-width: 300px;
@@ -39,9 +39,7 @@ const PhoneContainer = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 10;
-  opacity: ${props => props.isVisible ? 1 : 0};
-  pointer-events: ${props => props.isVisible ? 'auto' : 'none'};
-  transition: opacity 0.8s ease;
+  transition: top 0.1s linear;
 `;
 
 const Phone = styled(motion.div)`
@@ -157,7 +155,10 @@ const showcaseData = [
 ];
 
 const PhoneShowcase = () => {
-  const [isVisible, setIsVisible] = useState([false, false]);
+  const [phonePositions, setPhonePositions] = useState([
+    { isFixed: false, position: 'absolute', top: 100 },
+    { isFixed: false, position: 'absolute', top: 1500 }
+  ]);
   const [textVisibility, setTextVisibility] = useState([
     [false, false, false],
     [false, false, false, false]
@@ -170,33 +171,24 @@ const PhoneShowcase = () => {
     { start: useRef(null), end: useRef(null) }
   ];
   const scrollTimeout = useRef(null);
-  const lastScrollY = useRef(0);
-  const scrollDirection = useRef('down');
   
-  // Define scroll thresholds for each phone (in pixels from the top of the section)
-  // Using useMemo to prevent the array from being recreated on every render
-  const phoneThresholdsDown = useMemo(() => [
-    { start: -150, end: 500 },    // First phone appears immediately, disappears at 500px
-    { start: 1500, end: 2500 }   // Second phone appears at 1500px, disappears at 2500px
-  ], []);
-  
-  // Different thresholds for scrolling up
-  const phoneThresholdsUp = useMemo(() => [
-    { start: -100, end: 600 },    // First phone appears immediately, disappears at 400px
-    { start: 1700, end: 2300 }   // Second phone appears at 1700px, disappears at 2300px
+  // Define section boundaries for each phone
+  const phoneSections = useMemo(() => [
+    { topBoundary: 200, bottomBoundary: 1000, topOffset: 100, bottomOffset: 1000 },
+    { topBoundary: 1600, bottomBoundary: 2500, topOffset: 1500, bottomOffset: 2500 }
   ], []);
   
   // Define text block visibility thresholds
   const textThresholds = useMemo(() => [
     [
-      { start: 0, end: 300 },     // First text block of first phone
-      { start: 300, end: 600 },   // Second text block of first phone
-      { start: 600, end: 900 }    // Third text block of first phone
+      { start: 0, end: 300 },
+      { start: 300, end: 600 },
+      { start: 600, end: 900 }
     ],
     [
-      { start: 1500, end: 1800 }, // First text block of second phone
-      { start: 1800, end: 2100 }, // Second text block of second phone
-      { start: 2100, end: 2400 }, // Third text block of second phone
+      { start: 1500, end: 1800 },
+      { start: 1800, end: 2100 },
+      { start: 2100, end: 2400 },
     ]
   ], []);
   
@@ -213,11 +205,8 @@ const PhoneShowcase = () => {
       scrollTimeout.current = setTimeout(() => {
         const section = sectionRef.current;
         const sectionTop = section.offsetTop;
+        const windowHeight = window.innerHeight;
         const scrollPosition = window.scrollY;
-        
-        // Determine scroll direction
-        scrollDirection.current = scrollPosition > lastScrollY.current ? 'down' : 'up';
-        lastScrollY.current = scrollPosition;
         
         // Calculate how far we've scrolled into the section
         const scrollIntoSection = scrollPosition - sectionTop;
@@ -227,27 +216,42 @@ const PhoneShowcase = () => {
         const progress = Math.min(Math.max(scrollIntoSection / (sectionHeight * 0.7), 0), 1);
         setScrollProgress(progress);
         
-        // Determine which phone should be visible based on scroll position
-        let newVisibility = [false, false];
+        // Update phone positions based on scroll
+        const newPhonePositions = [...phonePositions];
         
-        // Choose the appropriate thresholds based on scroll direction
-        const thresholds = scrollDirection.current === 'down' ? phoneThresholdsDown : phoneThresholdsUp;
-        
-        // Check each phone's threshold
-        for (let i = 0; i < thresholds.length; i++) {
-          const { start, end } = thresholds[i];
+        // Calculate position for each phone
+        phoneSections.forEach((section, index) => {
+          const { topBoundary, bottomBoundary, topOffset, bottomOffset } = section;
           
-          // If we're within this phone's threshold range, make it visible
-          if (scrollIntoSection >= start && scrollIntoSection <= end) {
-            newVisibility[i] = true;
-            break;
+          // Before the top boundary - position absolute at top position
+          if (scrollIntoSection < topBoundary) {
+            newPhonePositions[index] = {
+              isFixed: false,
+              position: 'absolute',
+              top: topOffset
+            };
           }
-        }
+          // Inside the section - stays fixed in center of viewport
+          else if (scrollIntoSection >= topBoundary && scrollIntoSection <= bottomBoundary) {
+            newPhonePositions[index] = {
+              isFixed: true,
+              position: 'fixed',
+              top: 0
+            };
+          }
+          // After section - becomes absolute positioned and scrolls with page
+          else if (scrollIntoSection > bottomBoundary) {
+            newPhonePositions[index] = {
+              isFixed: false,
+              position: 'absolute',
+              top: bottomOffset + (windowHeight / 2) - 250 // Adjust to center the phone
+            };
+          }
+        });
         
-        // Update phone visibility
-        setIsVisible(newVisibility);
+        setPhonePositions(newPhonePositions);
         
-        // Update text block visibility - boxes stay visible once they appear
+        // Update text block visibility
         let newTextVisibility = [...textVisibility];
         
         // Check each phone's text blocks
@@ -255,17 +259,15 @@ const PhoneShowcase = () => {
           for (let textIndex = 0; textIndex < textThresholds[phoneIndex].length; textIndex++) {
             const { start } = textThresholds[phoneIndex][textIndex];
             
-            // If we've scrolled past the start point, make the text block visible and keep it visible
             if (scrollIntoSection >= start) {
               newTextVisibility[phoneIndex][textIndex] = true;
             }
           }
         }
         
-        // Update text visibility
         setTextVisibility(newTextVisibility);
         
-      }, 50);
+      }, 10); // Reduced debounce time for smoother scrolling
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -279,10 +281,7 @@ const PhoneShowcase = () => {
         clearTimeout(scrollTimeout.current);
       }
     };
-  }, [phoneThresholdsDown, phoneThresholdsUp, textThresholds, textVisibility]);
-
-  // Determine if we're in dark mode based on scroll progress
-  const isDarkMode = scrollProgress > 0.5;
+  }, [phoneSections, textThresholds, textVisibility]);
 
   return (
     <ShowcaseSection id="showcase" ref={sectionRef}>
@@ -372,13 +371,15 @@ const PhoneShowcase = () => {
       </ContentContainer>
       <SpacerBottom />
       
-      {/* Fixed phones that fade in/out based on scroll position */}
+      {/* Phones that are fixed or absolute positioned based on scroll */}
       {showcaseData.map((item, index) => (
         <PhoneContainer 
           key={`phone-${index}`}
           ref={phoneRefs[index]} 
           align={item.align}
-          isVisible={isVisible[index]}
+          isFixed={phonePositions[index].isFixed}
+          position={phonePositions[index].position}
+          top={phonePositions[index].top}
         >
           <Phone>
             <PhoneScreen
@@ -393,4 +394,4 @@ const PhoneShowcase = () => {
   );
 };
 
-export default PhoneShowcase; 
+export default PhoneShowcase;
