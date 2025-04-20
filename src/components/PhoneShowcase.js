@@ -5,9 +5,13 @@ import { motion } from 'framer-motion';
 const ShowcaseSection = styled.section`
   min-height: 300vh;
   background: transparent;
-  padding: 0;
+  padding: 25vh 0 0 0;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 `;
 
 const BackgroundOverlay = styled.div`
@@ -32,14 +36,15 @@ const PhoneContainer = styled.div`
   left: ${props => props.align === 'left' ? '5%' : 'auto'};
   right: ${props => props.align === 'right' ? '5%' : 'auto'};
   transform: ${props => props.isFixed ? 'translateY(-50%)' : 'none'};
-  height: 500px;
+  height: 560px; /* Match the exact height of the phone */
   width: 100%;
   max-width: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10;
-  transition: top 0.1s linear;
+  will-change: transform, top, position;
+  transition: opacity 0.1s ease-out;
 `;
 
 const Phone = styled(motion.div)`
@@ -70,10 +75,11 @@ const ContentContainer = styled.div`
   position: relative;
   height: 300vh;
   z-index: 2;
+  scroll-margin: 50px;
 `;
 
 const TextGroup = styled(motion.div)`
-  margin: 100px 0;
+  margin: 200px 0;
   padding: 20px;
   background: rgba(17, 24, 39, 0.8);
   border-radius: 10px;
@@ -117,6 +123,8 @@ const PhoneSection = styled.div`
   align-items: center;
   padding: 0 5%;
   margin-bottom: 100px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 `;
 
 const SectionMarker = styled.div`
@@ -156,8 +164,8 @@ const showcaseData = [
 
 const PhoneShowcase = () => {
   const [phonePositions, setPhonePositions] = useState([
-    { isFixed: false, position: 'absolute', top: 100 },
-    { isFixed: false, position: 'absolute', top: 1500 }
+    { isFixed: false, position: 'absolute', top: 550 },
+    { isFixed: false, position: 'absolute', top: 2800 }
   ]);
   const [textVisibility, setTextVisibility] = useState([
     [false, false, false],
@@ -174,8 +182,18 @@ const PhoneShowcase = () => {
   
   // Define section boundaries for each phone
   const phoneSections = useMemo(() => [
-    { topBoundary: 200, bottomBoundary: 1000, topOffset: 100, bottomOffset: 1000 },
-    { topBoundary: 1600, bottomBoundary: 2500, topOffset: 1500, bottomOffset: 2500 }
+    { 
+      topBoundary: 125,     // When first phone becomes fixed (sticky)
+      bottomBoundary: 1300, // When first phone stops being fixed
+      topOffset: 550,       // Initial position of first phone
+      bottomOffset: 1750    // Final position of first phone
+    },
+    { 
+      topBoundary: 2400,    // When second phone becomes fixed (sticky)
+      bottomBoundary: 3350, // When second phone stops being fixed
+      topOffset: 2800,      // Initial position of second phone
+      bottomOffset: 3800    // Final position of second phone
+    }
   ], []);
   
   // Define text block visibility thresholds
@@ -193,58 +211,73 @@ const PhoneShowcase = () => {
   ], []);
   
   useEffect(() => {
+    let isScrolling = false;
+    
     const handleScroll = () => {
       if (!sectionRef.current) return;
       
-      // Clear any existing timeout
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
-      }
+      // Get necessary measurements
+      const section = sectionRef.current;
+      const sectionTop = section.offsetTop;
+      const windowHeight = window.innerHeight;
+      const viewportCenter = windowHeight / 2;
+      const scrollPosition = window.scrollY;
       
-      // Set a new timeout to debounce the scroll event
-      scrollTimeout.current = setTimeout(() => {
-        const section = sectionRef.current;
-        const sectionTop = section.offsetTop;
-        const windowHeight = window.innerHeight;
-        const scrollPosition = window.scrollY;
-        
-        // Calculate how far we've scrolled into the section
-        const scrollIntoSection = scrollPosition - sectionTop;
-        
-        // Calculate scroll progress (0 to 1) for background transition
-        const sectionHeight = section.offsetHeight;
-        const progress = Math.min(Math.max(scrollIntoSection / (sectionHeight * 0.7), 0), 1);
-        setScrollProgress(progress);
-        
+      // Calculate how far we've scrolled into the section
+      const scrollIntoSection = scrollPosition - sectionTop;
+      
+      // Calculate scroll progress (0 to 1) for background transition
+      const sectionHeight = section.offsetHeight;
+      const progress = Math.min(Math.max(scrollIntoSection / (sectionHeight * 0.7), 0), 1);
+      setScrollProgress(progress);
+      
+      // Set a flag to prevent too many calculations during scroll
+      if (isScrolling) return;
+      
+      isScrolling = true;
+      
+      // Use requestAnimationFrame for smoother animations
+      requestAnimationFrame(() => {
         // Update phone positions based on scroll
-        const newPhonePositions = [...phonePositions];
+        const newPhonePositions = [];
         
         // Calculate position for each phone
         phoneSections.forEach((section, index) => {
           const { topBoundary, bottomBoundary, topOffset, bottomOffset } = section;
           
-          // Before the top boundary - position absolute at top position
-          if (scrollIntoSection < topBoundary) {
+          // Get the transition points in absolute scroll position
+          const topTransitionPoint = sectionTop + topBoundary;
+          const bottomTransitionPoint = sectionTop + bottomBoundary;
+          
+          // Constrain scrolling to stay within boundaries
+          let effectiveScrollPosition = scrollPosition;
+          
+          // Adjust this value to fine-tune vertical centering when fixed
+          // Negative values move phone up, positive values move it down
+          const fixedPositionOffset = 0;
+          
+          // Before the top boundary - position absolute at starting position
+          if (scrollPosition < topTransitionPoint) {
             newPhonePositions[index] = {
               isFixed: false,
               position: 'absolute',
               top: topOffset
             };
           }
-          // Inside the section - stays fixed in center of viewport
-          else if (scrollIntoSection >= topBoundary && scrollIntoSection <= bottomBoundary) {
+          // Inside the section - stays fixed in viewport
+          else if (scrollPosition >= topTransitionPoint && scrollPosition <= bottomTransitionPoint) {
             newPhonePositions[index] = {
               isFixed: true,
               position: 'fixed',
-              top: 0
+              top: fixedPositionOffset
             };
           }
-          // After section - becomes absolute positioned and scrolls with page
-          else if (scrollIntoSection > bottomBoundary) {
+          // After section - becomes absolute positioned
+          else {
             newPhonePositions[index] = {
               isFixed: false,
               position: 'absolute',
-              top: bottomOffset + (windowHeight / 2) - 250 // Adjust to center the phone
+              top: bottomOffset
             };
           }
         });
@@ -267,10 +300,13 @@ const PhoneShowcase = () => {
         
         setTextVisibility(newTextVisibility);
         
-      }, 10); // Reduced debounce time for smoother scrolling
+        // Reset the scrolling flag
+        isScrolling = false;
+      });
     };
 
-    window.addEventListener('scroll', handleScroll);
+    // Add a scroll event listener with passive option for better performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
     // Trigger initial scroll check
     handleScroll();
@@ -283,6 +319,17 @@ const PhoneShowcase = () => {
     };
   }, [phoneSections, textThresholds, textVisibility]);
 
+  // Add a helper function to create smooth scroll animations
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   return (
     <ShowcaseSection id="showcase" ref={sectionRef}>
       <BackgroundOverlay scrollProgress={scrollProgress} />
@@ -290,7 +337,14 @@ const PhoneShowcase = () => {
       <ContentContainer>
         {showcaseData.map((item, index) => (
           <React.Fragment key={index}>
-            <PhoneSection>
+            <PhoneSection
+              id={`phone-section-${index}`}
+              style={{
+                scrollSnapAlign: 'start',
+                scrollSnapStop: 'always',
+                scrollMargin: '50px'
+              }}
+            >
               {/* Section markers to detect when to fix the phone and text */}
               <SectionMarker ref={sectionMarkerRefs[index].start} style={{ top: '10%' }} />
               <SectionMarker ref={sectionMarkerRefs[index].end} style={{ bottom: '10%' }} />
