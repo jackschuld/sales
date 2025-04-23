@@ -4,65 +4,94 @@ import { motion } from 'framer-motion';
 
 const ServicesSection = styled.section`
   min-height: 100vh;
-  background: white;
   padding: 100px 0;
   overflow: hidden;
 `;
 
 const Container = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 20px;
 `;
 
 const Title = styled.h2`
   font-size: 3rem;
   text-align: center;
   margin-bottom: 60px;
-  color: #333;
+  color: white;
+`;
+
+const ServiceCard = styled(motion.div)`
+  min-width: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
+  transform-origin: center center;
+
+  &:hover {
+    transform: translateY(-20px) scale(1.05) rotate(1deg);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+    z-index: 2;
+  }
+
+  &:not(:hover) {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
+    border-radius: 0 0 20px 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
 `;
 
 const ServicesContainer = styled.div`
   display: flex;
   gap: 30px;
-  padding: 20px 0;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  
-  &::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-  }
-`;
+  padding: 100px;
+  overflow-x: hidden;
+  position: relative;
+  perspective: 1000px;
 
-const ServiceCard = styled(motion.div)`
-  min-width: 300px;
-  background: white;
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  scroll-snap-align: start;
-  cursor: pointer;
-  
-  &:hover {
-    transform: translateY(-5px);
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  ${ServiceCard}:hover ~ ${ServiceCard} {
+    transform: scale(0.95) translateX(10px);
+    opacity: 0.8;
+  }
+
+  ${ServiceCard} {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &:hover ${ServiceCard}:not(:hover) {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 `;
 
 const ServiceIcon = styled.div`
   width: 60px;
   height: 60px;
-  background: ${props => props.color};
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   display: flex;
   align-items: center;
@@ -70,16 +99,20 @@ const ServiceIcon = styled.div`
   margin-bottom: 20px;
   color: white;
   font-size: 24px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
 const ServiceTitle = styled.h3`
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   margin-bottom: 15px;
-  color: #333;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: -0.5px;
 `;
 
 const ServiceDescription = styled.p`
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
 `;
 
@@ -123,20 +156,159 @@ const services = [
 ];
 
 const Services = () => {
+  const containerRef = React.useRef(null);
+  const [isHovering, setIsHovering] = React.useState(false);
+  const scrollIntervalRef = React.useRef(null);
+  const autoScrollIntervalRef = React.useRef(null);
+  const resetTimeoutRef = React.useRef(null);
+
+  // Function to handle automatic scrolling
+  const startAutoScroll = () => {
+    if (containerRef.current && !isHovering) {
+      autoScrollIntervalRef.current = setInterval(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        // If we reach the end, wait before resetting
+        if (container.scrollLeft >= container.scrollWidth - container.clientWidth) {
+          // Clear the auto-scroll interval
+          if (autoScrollIntervalRef.current) {
+            clearInterval(autoScrollIntervalRef.current);
+            autoScrollIntervalRef.current = null;
+          }
+
+          // Wait for 2 seconds before resetting
+          resetTimeoutRef.current = setTimeout(() => {
+            // Smoothly scroll back to start
+            container.scrollTo({
+              left: 0,
+              behavior: 'smooth'
+            });
+
+            // After resetting, start scrolling again
+            setTimeout(() => {
+              startAutoScroll();
+            }, 1000); // Wait for the reset animation to complete
+          }, 2000); // Wait 2 seconds at the end
+        } else {
+          container.scrollLeft += 1; // Slow continuous scroll
+        }
+      }, 20);
+    }
+  };
+
+  // Function to handle edge scrolling
+  const handleEdgeScroll = (direction, speed) => {
+    if (!containerRef.current) return;
+
+    const container = containerRef.current;
+    const scrollAmount = direction === 'left' ? -speed : speed;
+
+    // Clear any existing interval
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current);
+    }
+
+    // Set up new continuous scroll
+    scrollIntervalRef.current = setInterval(() => {
+      container.scrollLeft += scrollAmount;
+    }, 16); // ~60fps for smooth scrolling
+  };
+
+  const handleMouseMove = (e) => {
+    if (!containerRef.current || !isHovering) return;
+
+    const container = containerRef.current;
+    const rect = container.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const containerWidth = rect.width;
+    const edgeZone = containerWidth * 0.2; // 20% edge zones
+
+    // Clear auto-scroll when manually scrolling
+    if (autoScrollIntervalRef.current) {
+      clearInterval(autoScrollIntervalRef.current);
+    }
+
+    if (mouseX < edgeZone) {
+      // Left edge zone
+      const speed = Math.max(5, 15 * (1 - mouseX / edgeZone));
+      handleEdgeScroll('left', speed);
+    } else if (mouseX > containerWidth - edgeZone) {
+      // Right edge zone
+      const speed = Math.max(5, 15 * ((mouseX - (containerWidth - edgeZone)) / edgeZone));
+      handleEdgeScroll('right', speed);
+    } else {
+      // Clear scroll interval when not in edge zones
+      if (scrollIntervalRef.current) {
+        clearInterval(scrollIntervalRef.current);
+        scrollIntervalRef.current = null;
+      }
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    // Clear manual scroll interval
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current);
+      scrollIntervalRef.current = null;
+    }
+    // Restart auto-scroll
+    startAutoScroll();
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+    // Clear auto-scroll
+    if (autoScrollIntervalRef.current) {
+      clearInterval(autoScrollIntervalRef.current);
+      autoScrollIntervalRef.current = null;
+    }
+  };
+
+  // Start auto-scroll on component mount
+  React.useEffect(() => {
+    startAutoScroll();
+
+    // Cleanup intervals and timeouts on unmount
+    return () => {
+      if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
+      if (autoScrollIntervalRef.current) clearInterval(autoScrollIntervalRef.current);
+      if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
+    };
+  }, [isHovering]);
+
   return (
     <ServicesSection id="services">
       <Container>
         <Title>My Services</Title>
-        <ServicesContainer>
+        <ServicesContainer
+          ref={containerRef}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onMouseMove={handleMouseMove}
+        >
           {services.map((service, index) => (
             <ServiceCard
               key={index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ scale: 1.02 }}
+              transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+                duration: 0.5,
+                delay: index * 0.1
+              }}
+              whileHover={{
+                scale: 1.05,
+                transition: { duration: 0.2 }
+              }}
+              animate={{
+                y: isHovering ? Math.sin(Date.now() / 1000 + index) * 10 : 0,
+              }}
             >
-              <ServiceIcon color={service.color}>{service.icon}</ServiceIcon>
+              <ServiceIcon>{service.icon}</ServiceIcon>
               <ServiceTitle>{service.title}</ServiceTitle>
               <ServiceDescription>{service.description}</ServiceDescription>
             </ServiceCard>
@@ -147,4 +319,4 @@ const Services = () => {
   );
 };
 
-export default Services; 
+export default Services;

@@ -22,7 +22,7 @@ const HeroContent = styled.div`
 const Title = styled(motion.h1)`
   font-size: 4rem;
   margin-bottom: 20px;
-  
+
   @media (max-width: 768px) {
     font-size: 2.5rem;
   }
@@ -32,7 +32,7 @@ const Subtitle = styled(motion.p)`
   font-size: 1.5rem;
   margin-bottom: 40px;
   opacity: 0.9;
-  
+
   @media (max-width: 768px) {
     font-size: 1.2rem;
   }
@@ -42,7 +42,7 @@ const CTAButton = styled(motion.button)`
   padding: 15px 40px;
   font-size: 1.2rem;
   background: white;
-  color: #6366f1;
+  // color: #6366f1;
   border: none;
   border-radius: 30px;
   cursor: pointer;
@@ -123,4 +123,4 @@ const Hero = () => {
   );
 };
 
-export default Hero; 
+export default Hero;
