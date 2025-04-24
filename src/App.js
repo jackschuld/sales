@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import PhoneShowcase from './components/PhoneShowcase';
 import Services from './components/Services';
@@ -42,7 +41,6 @@ const SectionSpacer = styled.div`
 function App() {
   return (
     <AppContainer>
-      <Navbar />
       <Hero />
       <SectionSpacer />
       <PhoneShowcase />

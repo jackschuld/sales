@@ -1,17 +1,30 @@
 import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import SectionNavigation from './SectionNavigation';
 
 const ServicesSection = styled.section`
-  min-height: 100vh;
+  height: 100vh;
   padding: 100px 0;
   overflow: hidden;
+  position: relative;
+`;
+
+const CenteredWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Container = styled.div`
+  width: 100%;
+  // max-width: 1200px;
 `;
 
-const Title = styled.h2`
+const Title = styled(motion.h2)`
   font-size: 3rem;
   text-align: center;
   margin-bottom: 60px;
@@ -280,41 +293,52 @@ const Services = () => {
 
   return (
     <ServicesSection id="services">
-      <Container>
-        <Title>My Services</Title>
-        <ServicesContainer
-          ref={containerRef}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          onMouseMove={handleMouseMove}
-        >
-          {services.map((service, index) => (
-            <ServiceCard
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 200,
-                damping: 20,
-                duration: 0.5,
-                delay: index * 0.1
-              }}
-              whileHover={{
-                scale: 1.05,
-                transition: { duration: 0.2 }
-              }}
-              animate={{
-                y: isHovering ? Math.sin(Date.now() / 1000 + index) * 10 : 0,
-              }}
-            >
-              <ServiceIcon>{service.icon}</ServiceIcon>
-              <ServiceTitle>{service.title}</ServiceTitle>
-              <ServiceDescription>{service.description}</ServiceDescription>
-            </ServiceCard>
-          ))}
-        </ServicesContainer>
-      </Container>
+      <CenteredWrapper>
+        <Container>
+          <Title
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: false, amount: 0.3 }}
+          >
+            My Services
+          </Title>
+          <ServicesContainer
+            ref={containerRef}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onMouseMove={handleMouseMove}
+          >
+            {services.map((service, index) => (
+              <ServiceCard
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20,
+                  duration: 0.5,
+                  delay: index * 0.1
+                }}
+                whileHover={{
+                  scale: 1.05,
+                  transition: { duration: 0.2 }
+                }}
+                viewport={{ once: false, amount: 0.3 }}
+                animate={{
+                  y: isHovering ? Math.sin(Date.now() / 1000 + index) * 10 : 0,
+                }}
+              >
+                <ServiceIcon>{service.icon}</ServiceIcon>
+                <ServiceTitle>{service.title}</ServiceTitle>
+                <ServiceDescription>{service.description}</ServiceDescription>
+              </ServiceCard>
+            ))}
+          </ServicesContainer>
+        </Container>
+      </CenteredWrapper>
+      <SectionNavigation />
     </ServicesSection>
   );
 };

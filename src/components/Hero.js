@@ -1,15 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import SectionNavigation from './SectionNavigation';
 
 const HeroSection = styled.section`
+  padding: 100px 0;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   color: white;
-  padding: 0 20px;
   position: relative;
   z-index: 1;
 `;
@@ -106,19 +107,12 @@ const Hero = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={scrollToShowcase}
         >
           View My Portfolio
         </CTAButton>
       </HeroContent>
-      <ScrollIndicator
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 0.5 }}
-        onClick={scrollToShowcase}
-      >
-        <ScrollText>Scroll to explore</ScrollText>
-        <ScrollIcon>⬇</ScrollIcon>
-      </ScrollIndicator>
+      <SectionNavigation nextSection="showcase" />
     </HeroSection>
   );
 };
