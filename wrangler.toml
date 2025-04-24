@@ -1,0 +1,19 @@
+name = "website-jackschuld-com"
+compatibility_date = "2024-01-01"
+
+[build]
+command = "npm install && npm run build"
+publish = "build"
+
+# SPA routing redirects
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+[env.production]
+vars = { 
+  REACT_APP_EMAILJS_SERVICE_ID = "service_ufiqt7e",
+  REACT_APP_EMAILJS_TEMPLATE_ID = "template_qops3ur",
+  REACT_APP_EMAILJS_PUBLIC_KEY = "q_rkQl5tLNjzeIevE"
+}
