@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
@@ -88,17 +88,27 @@ const ScrollIcon = styled.div`
 const Hero = () => {
   const controls = useAnimation();
   const [ref, inView] = useInView({
-    threshold: 0.3,
+    threshold: 0.2,
     triggerOnce: false
   });
-
+  const [hasShownOnce, setHasShownOnce] = useState(false);
+  
+  // Initial load animation
   useEffect(() => {
-    if (inView) {
-      controls.start({ opacity: 1, y: 0 });
-    } else {
-      controls.start({ opacity: 0, y: 20 });
+    controls.start({ opacity: 1, y: 0 });
+    setHasShownOnce(true);
+  }, [controls]);
+  
+  // Scroll-based animation
+  useEffect(() => {
+    if (hasShownOnce) {
+      if (inView) {
+        controls.start({ opacity: 1, y: 0 });
+      } else {
+        controls.start({ opacity: 0, y: 20 });
+      }
     }
-  }, [controls, inView]);
+  }, [controls, inView, hasShownOnce]);
 
   const scrollToShowcase = () => {
     const showcaseSection = document.getElementById('showcase');
