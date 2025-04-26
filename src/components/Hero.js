@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { motion, useAnimation } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import { motion } from 'framer-motion';
 
 const HeroSection = styled.section`
   padding: 80px 20px;
@@ -86,29 +85,26 @@ const ScrollIcon = styled.div`
 `;
 
 const Hero = () => {
-  const controls = useAnimation();
-  const [ref, inView] = useInView({
-    threshold: 0.2,
-    triggerOnce: false
-  });
-  const [hasShownOnce, setHasShownOnce] = useState(false);
-  
-  // Initial load animation
+  const [visible, setVisible] = useState(true);
+
   useEffect(() => {
-    controls.start({ opacity: 1, y: 0 });
-    setHasShownOnce(true);
-  }, [controls]);
-  
-  // Scroll-based animation
-  useEffect(() => {
-    if (hasShownOnce) {
-      if (inView) {
-        controls.start({ opacity: 1, y: 0 });
-      } else {
-        controls.start({ opacity: 0, y: 20 });
+    // Initial visibility
+    setVisible(true);
+    
+    // Set up scroll listener
+    const handleScroll = () => {
+      const heroSection = document.getElementById('home');
+      if (heroSection) {
+        const rect = heroSection.getBoundingClientRect();
+        // Element is considered visible if its bottom is still in view
+        const isVisible = rect.bottom > 0 && rect.top < window.innerHeight * 0.5;
+        setVisible(isVisible);
       }
-    }
-  }, [controls, inView, hasShownOnce]);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const scrollToShowcase = () => {
     const showcaseSection = document.getElementById('showcase');
@@ -118,25 +114,25 @@ const Hero = () => {
   };
 
   return (
-    <HeroSection id="home" ref={ref}>
+    <HeroSection id="home">
       <HeroContent>
         <Title
           initial={{ opacity: 0, y: 20 }}
-          animate={controls}
+          animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 20 }}
           transition={{ duration: 0.8 }}
         >
           Web Development and Marketing
         </Title>
         <Subtitle
           initial={{ opacity: 0, y: 20 }}
-          animate={controls}
+          animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 20 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           Increase your online presence!
         </Subtitle>
         <CTAButton
           initial={{ opacity: 0, y: 20 }}
-          animate={controls}
+          animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 20 }}
           transition={{ duration: 0.8, delay: 0.4 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
