@@ -190,7 +190,7 @@ function App() {
     addCursorHoverEffect();
 
     // Add reveal classes to section components
-    const sections = document.querySelectorAll('section');
+    const sections = document.querySelectorAll('section:not(#home)');
     sections.forEach(section => {
       section.classList.add('reveal', 'fade-bottom');
     });

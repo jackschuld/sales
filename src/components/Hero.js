@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 
@@ -85,27 +85,6 @@ const ScrollIcon = styled.div`
 `;
 
 const Hero = () => {
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    // Initial visibility
-    setVisible(true);
-    
-    // Set up scroll listener
-    const handleScroll = () => {
-      const heroSection = document.getElementById('home');
-      if (heroSection) {
-        const rect = heroSection.getBoundingClientRect();
-        // Element is considered visible if its bottom is still in view
-        const isVisible = rect.bottom > 0 && rect.top < window.innerHeight * 0.5;
-        setVisible(isVisible);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const scrollToShowcase = () => {
     const showcaseSection = document.getElementById('showcase');
     if (showcaseSection) {
@@ -118,21 +97,21 @@ const Hero = () => {
       <HeroContent>
         <Title
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
           Web Development and Marketing
         </Title>
         <Subtitle
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           Increase your online presence!
         </Subtitle>
         <CTAButton
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
