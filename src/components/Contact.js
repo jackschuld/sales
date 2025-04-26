@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import emailjs from 'emailjs-com';
 
 const ContactSection = styled.section`
@@ -124,6 +124,7 @@ const Form = styled(motion.form)`
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
+  position: relative;
   
   @media (max-width: 768px) {
     padding: 25px;
@@ -200,19 +201,52 @@ const SubmitButton = styled(motion.button)`
   }
 `;
 
+const StatusMessageWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1000;
+`;
+
 const StatusMessage = styled(motion.div)`
-  margin-top: 20px;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 0.95rem;
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-size: 1rem;
   color: white;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  min-width: 260px;
+  max-width: 90%;
+  pointer-events: auto;
   background: ${props => props.isError 
-    ? 'rgba(220, 38, 38, 0.2)' 
-    : 'rgba(16, 185, 129, 0.2)'};
+    ? 'rgba(220, 38, 38, 0.9)' 
+    : 'rgba(16, 185, 129, 0.9)'};
   border: 1px solid ${props => props.isError 
     ? 'rgba(220, 38, 38, 0.3)' 
     : 'rgba(16, 185, 129, 0.3)'};
+`;
+
+const StatusContent = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 5px;
+`;
+
+const StatusIcon = styled.div`
+  font-size: 1.2rem;
 `;
 
 const LoadingSpinner = styled.div`
@@ -240,12 +274,23 @@ const Contact = () => {
     message: ''
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState({ text: '', isError: false });
+  const [statusMessage, setStatusMessage] = useState({ text: '', isError: false, visible: false });
+
+  // Auto-hide status message
+  useEffect(() => {
+    if (statusMessage.text) {
+      const timer = setTimeout(() => {
+        setStatusMessage(prev => ({ ...prev, visible: false }));
+      }, 4000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [statusMessage.text]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setStatusMessage({ text: '', isError: false });
+    setStatusMessage({ text: '', isError: false, visible: false });
 
     emailjs.send(
       process.env.REACT_APP_EMAILJS_SERVICE_ID,
@@ -255,12 +300,12 @@ const Contact = () => {
     )
     .then((result) => {
       console.log('Email sent successfully:', result.text);
-      setStatusMessage({ text: 'Message sent successfully!', isError: false });
+      setStatusMessage({ text: 'Message sent successfully!', isError: false, visible: true });
       setFormData({ name: '', email: '', subject: '', message: '' });
     })
     .catch((error) => {
       console.error('Email error:', error);
-      setStatusMessage({ text: 'Something went wrong. Please try again.', isError: true });
+      setStatusMessage({ text: 'Something went wrong. Please try again.', isError: true, visible: true });
     })
     .finally(() => {
       setIsLoading(false);
@@ -383,17 +428,28 @@ const Contact = () => {
                 'Send Message'
               )}
             </SubmitButton>
+            
+            <AnimatePresence>
+              {statusMessage.visible && statusMessage.text && (
+                <StatusMessageWrapper>
+                  <StatusMessage
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.4 }}
+                    isError={statusMessage.isError}
+                  >
+                    <StatusContent>
+                      <StatusIcon>
+                        {statusMessage.isError ? '❌' : '✅'}
+                      </StatusIcon>
+                      {statusMessage.text}
+                    </StatusContent>
+                  </StatusMessage>
+                </StatusMessageWrapper>
+              )}
+            </AnimatePresence>
           </Form>
-          {statusMessage.text && (
-            <StatusMessage
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              isError={statusMessage.isError}
-            >
-              {statusMessage.text}
-            </StatusMessage>
-          )}
         </Container>
       </CenteredWrapper>
     </ContactSection>
