@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import SectionNavigation from './SectionNavigation';
 
 const HeroSection = styled.section`
-  padding: 100px 0;
-  height: 100vh;
+  padding: 80px 20px;
+  min-height: 100vh;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,11 +13,21 @@ const HeroSection = styled.section`
   color: white;
   position: relative;
   z-index: 1;
+  
+  @media (max-width: 768px) {
+    padding: 40px 20px;
+    justify-content: flex-start;
+  }
 `;
 
 const HeroContent = styled.div`
   text-align: center;
   max-width: 800px;
+  padding: 0 20px;
+  
+  @media (max-width: 768px) {
+    margin-top: 60px;
+  }
 `;
 
 const Title = styled(motion.h1)`
@@ -46,7 +56,6 @@ const CTAButton = styled(motion.button)`
   // color: #6366f1;
   border: none;
   border-radius: 30px;
-  cursor: pointer;
   transition: transform 0.3s ease;
 
   &:hover {
@@ -64,7 +73,6 @@ const ScrollIndicator = styled(motion.div)`
   align-items: center;
   color: white;
   opacity: 0.8;
-  cursor: pointer;
 `;
 
 const ScrollText = styled.span`
@@ -92,14 +100,14 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          Full Stack Developer & Project Manager
+          Web Development and Marketing
         </Title>
         <Subtitle
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          Specializing in React, Angular, Laravel, and .NET development with a background in marketing and project management.
+          Increase your online presence!
         </Subtitle>
         <CTAButton
           initial={{ opacity: 0, y: 20 }}
@@ -109,10 +117,9 @@ const Hero = () => {
           whileTap={{ scale: 0.95 }}
           onClick={scrollToShowcase}
         >
-          View My Portfolio
+          Explore
         </CTAButton>
       </HeroContent>
-      <SectionNavigation nextSection="showcase" />
     </HeroSection>
   );
 };

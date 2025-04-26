@@ -13,7 +13,7 @@ const NavigationContainer = styled.div`
   z-index: 100;
 
   @media (max-width: 768px) {
-    right: 15px;
+    display: none; /* Hide on mobile */
   }
 `;
 
@@ -21,20 +21,23 @@ const NavButton = styled(motion.div)`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: ${props => props.isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255, 255, 255, 0.1)'};
+  border: 1px solid ${props => props.isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255, 255, 255, 0.2)'};
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 20px;
-  cursor: ${props => props.disabled ? 'default' : 'pointer'};
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   opacity: ${props => props.disabled ? 0.3 : 1};
   pointer-events: ${props => props.disabled ? 'none' : 'auto'};
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 
   &:hover {
-    background: ${props => props.disabled ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)'};
+    background: ${props => {
+      if (props.disabled) return props.isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255, 255, 255, 0.1)';
+      return props.isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255, 255, 255, 0.2)';
+    }};
   }
 `;
 
@@ -44,11 +47,31 @@ const SectionNavigation = () => {
   const [nextSection, setNextSection] = useState(null);
   const [atTop, setAtTop] = useState(false);
   const [atBottom, setAtBottom] = useState(false);
+  const [isDark, setIsDark] = useState(false);
   
   // The ordered list of section IDs
   const sections = ['home', 'showcase', 'services', 'contact'];
   
   useEffect(() => {
+    // Check for dark mode
+    const checkDarkMode = () => {
+      const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+      setIsDark(isDarkMode);
+    };
+    
+    checkDarkMode();
+    
+    // Create a mutation observer to detect theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          checkDarkMode();
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+    
     const handleScroll = () => {
       // Check if at top of page
       setAtTop(window.scrollY < 50);
@@ -96,8 +119,9 @@ const SectionNavigation = () => {
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      observer.disconnect();
     };
-  }, []);
+  }, [sections]);
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -116,17 +140,21 @@ const SectionNavigation = () => {
     <NavigationContainer>
       <NavButton
         whileTap={{ scale: 0.95 }}
-        onClick={() => scrollToSection(prevSection)}
+        onClick={() => prevSection && scrollToSection(prevSection)}
         aria-label={`Scroll to previous section`}
         disabled={upDisabled}
+        isDark={isDark}
+        className="clickable"
       >
         ↑
       </NavButton>
       <NavButton
         whileTap={{ scale: 0.95 }}
-        onClick={() => scrollToSection(nextSection)}
+        onClick={() => nextSection && scrollToSection(nextSection)}
         aria-label={`Scroll to next section`}
         disabled={downDisabled}
+        isDark={isDark}
+        className="clickable"
       >
         ↓
       </NavButton>

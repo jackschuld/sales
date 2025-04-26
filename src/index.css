@@ -2,20 +2,44 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Only apply cursor: none to non-touch devices */
+@media (hover: hover) {
+  body, a, button, input[type="submit"], input[type="button"], .clickable {
+    cursor: none;
+  }
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  font-weight: 400;
+  line-height: 1.6;
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Modern design font for headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode transition for elements */
+a, p, span, div, section {
+  transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 code {
@@ -25,18 +49,142 @@ code {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 14px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--scrollbar-track);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 5px;
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+  border: 2px solid var(--scrollbar-border);
+  box-shadow: inset 0 0 6px var(--scrollbar-shadow);
+  transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--scrollbar-thumb-hover);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 0 8px var(--cursor-outline-shadow);
+}
+
+/* Dark mode variables */
+:root {
+  --cursor-dot-color: #ffffff;
+  --cursor-dot-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 5px rgba(37, 117, 252, 1);
+  --cursor-outline-border: rgba(255, 255, 255, 0.6);
+  --cursor-outline-shadow: rgba(37, 117, 252, 0.3);
+  --cursor-hover-bg: rgba(255, 255, 255, 0.7);
+  --cursor-hover-border: rgba(255, 255, 255, 0.9);
+  --cursor-hover-bg-accent: rgba(37, 117, 252, 0.1);
+  --scrollbar-thumb: #1a1a1a;
+  --scrollbar-thumb-hover: #2a2a2a;
+  --scrollbar-track: rgba(26, 26, 26, 0.2);
+  --scrollbar-border: rgba(255, 255, 255, 0.2);
+  --scrollbar-shadow: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme='dark'] {
+  --cursor-dot-color: #6366f1;
+  --cursor-dot-shadow: 0 0 15px rgba(99, 102, 241, 0.9), 0 0 5px rgba(255, 255, 255, 0.5);
+  --cursor-outline-border: rgba(99, 102, 241, 0.6);
+  --cursor-outline-shadow: rgba(255, 255, 255, 0.2);
+  --cursor-hover-bg: rgba(99, 102, 241, 0.7);
+  --cursor-hover-border: rgba(99, 102, 241, 0.9);
+  --cursor-hover-bg-accent: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb: #6366f1;
+  --scrollbar-thumb-hover: #8b5cf6;
+  --scrollbar-track: rgba(99, 102, 241, 0.1);
+  --scrollbar-border: rgba(255, 255, 255, 0.2);
+  --scrollbar-shadow: rgba(255, 255, 255, 0.15);
+}
+
+/* Custom cursor styles */
+.cursor-dot {
+  width: 12px;
+  height: 12px;
+  background-color: var(--cursor-dot-color);
+  box-shadow: var(--cursor-dot-shadow);
+  border-radius: 50%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  margin-left: 0;
+  margin-top: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s, background-color 0.3s, box-shadow 0.3s;
+  will-change: transform;
+}
+
+.cursor-outline {
+  width: 50px;
+  height: 50px;
+  border: 3px solid var(--cursor-outline-border);
+  box-shadow: 0 0 20px var(--cursor-outline-shadow);
+  border-radius: 50%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  margin-left: 0;
+  margin-top: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease-out;
+  will-change: transform;
+}
+
+/* Smooth scroll animations */
+.reveal {
+  position: relative;
+  opacity: 0;
+  transition: all 1s ease-in-out;
+}
+
+.reveal.active {
+  opacity: 1;
+}
+
+.reveal.fade-bottom {
+  transform: translateY(50px);
+}
+
+.reveal.fade-bottom.active {
+  transform: translateY(0);
+}
+
+/* Custom cursor hover states */
+.cursor-dot.cursor-hover {
+  width: 18px;
+  height: 18px;
+  background-color: var(--cursor-hover-bg);
+}
+
+.cursor-outline.cursor-hover {
+  width: 60px;
+  height: 60px;
+  border-color: var(--cursor-hover-border);
+  background-color: var(--cursor-hover-bg-accent);
+}
+
+/* Import Google Fonts in HTML head */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* Dark mode transition for the app container */
+#root > div {
+  transition: background 0.6s ease, color 0.3s ease;
+}
+
+/* Toggle button animation */
+button[aria-label*="Switch to"] {
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button[aria-label*="Switch to"]:active {
+  transform: scale(0.9);
 }

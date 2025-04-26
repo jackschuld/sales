@@ -1,10 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-scroll';
 
 const FooterContainer = styled.footer`
   background: #1a1a1a;
   color: white;
   padding: 60px 0 20px;
+  
+  @media (max-width: 768px) {
+    padding: 40px 0 20px;
+  }
 `;
 
 const Container = styled.div`
@@ -21,10 +26,13 @@ const FooterContent = styled.div`
   
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-bottom: 30px;
   }
   
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
+    gap: 25px;
   }
 `;
 
@@ -33,12 +41,20 @@ const FooterSection = styled.div`
     font-size: 1.2rem;
     margin-bottom: 20px;
     color: #fff;
+    
+    @media (max-width: 768px) {
+      margin-bottom: 15px;
+    }
   }
   
   p {
     color: #999;
     line-height: 1.6;
     margin-bottom: 15px;
+    
+    @media (max-width: 768px) {
+      margin-bottom: 10px;
+    }
   }
 `;
 
@@ -46,6 +62,10 @@ const SocialLinks = styled.div`
   display: flex;
   gap: 15px;
   margin-top: 20px;
+  
+  @media (max-width: 768px) {
+    margin-top: 15px;
+  }
 `;
 
 const SocialLink = styled.a`
@@ -72,6 +92,21 @@ const Copyright = styled.div`
   color: #999;
 `;
 
+const NavLink = styled(Link)`
+  color: #999;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  display: block;
+  
+  &:hover {
+    color: #fff;
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 10px;
+  }
+`;
+
 const Footer = () => {
   return (
     <FooterContainer>
@@ -86,13 +121,16 @@ const Footer = () => {
           </FooterSection>
           <FooterSection>
             <h3>Quick Links</h3>
-            <p>Home</p>
-            <p>Showcase</p>
-            <p>Services</p>
-            <p>Contact</p>
+            <NavLink to="home" smooth={true} duration={500}>Home</NavLink>
+            <NavLink to="showcase" smooth={true} duration={500}>Showcase</NavLink>
+            <NavLink to="services" smooth={true} duration={500}>Services</NavLink>
+            <NavLink to="contact" smooth={true} duration={500}>Contact</NavLink>
           </FooterSection>
           <FooterSection>
             <h3>Skills</h3>
+            <p>Web Design</p>
+            <p>Marketing</p>
+            <p>SEO</p>
             <p>React.js & Angular</p>
             <p>Laravel & .NET</p>
             <p>API Integration</p>
@@ -100,10 +138,9 @@ const Footer = () => {
           </FooterSection>
           <FooterSection>
             <h3>Connect With Me</h3>
-            <p>Follow me on social media for updates and insights.</p>
             <SocialLinks>
-              <SocialLink href="https://github.com/" target="_blank" aria-label="GitHub">💻</SocialLink>
-              <SocialLink href="https://linkedin.com/" target="_blank" aria-label="LinkedIn">💼</SocialLink>
+              <SocialLink href="https://github.com/jackschuld" target="_blank" aria-label="GitHub">💻</SocialLink>
+              <SocialLink href="https://linkedin.com/in/jackschuld" target="_blank" aria-label="LinkedIn">💼</SocialLink>
               <SocialLink href="https://jackschuld.com" target="_blank" aria-label="Portfolio">🌐</SocialLink>
               <SocialLink href="mailto:schuldjack@gmail.com" aria-label="Email">📧</SocialLink>
             </SocialLinks>
@@ -117,4 +154,4 @@ const Footer = () => {
   );
 };
 
-export default Footer; 
+export default Footer;

@@ -1,16 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import SectionNavigation from './SectionNavigation';
 
 const ShowcaseSection = styled.section`
-  padding: 100px 0;
+  padding: 80px 0;
   position: relative;
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
   background: transparent;
   overflow: visible;
   display: flex;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    padding: 40px 0;
+    height: auto;
+    min-height: auto;
+  }
 `;
 
 const ShowcaseContainer = styled.div`
@@ -28,7 +34,11 @@ const ShowcaseContainer = styled.div`
     gap: 60px;
     align-items: center;
     padding: 0 40px;
-    height: 100vh;
+    height: auto;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 20px;
   }
 `;
 
@@ -46,6 +56,10 @@ const PhoneContainer = styled(motion.div)`
     align-items: center;
     justify-content: center;
   }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 20px;
+  }
 `;
 
 const Phone = styled(motion.div)`
@@ -57,6 +71,11 @@ const Phone = styled(motion.div)`
   overflow: hidden;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  @media (max-width: 768px) {
+    width: 240px;
+    height: 480px;
+  }
 `;
 
 const PhoneScreen = styled.div`
@@ -73,13 +92,15 @@ const PhoneScreen = styled.div`
 
 const PhoneImage = styled(motion.div)`
   position: absolute;
-  top: 0;
+  top: -8px;
   left: 0;
   right: 0;
   bottom: 0;
   background-size: cover;
   background-position: center;
   opacity: 0;
+  border-radius: 30px;
+  height: 103%;
 `;
 
 const Content = styled.div`
@@ -95,11 +116,15 @@ const Content = styled.div`
     flex-direction: column;
     justify-content: center;
   }
+  
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 `;
 
 const TextGroup = styled(motion.div)`
-  margin: 40px 0;
-  padding: 30px;
+  margin: 20px 0;
+  padding: 20px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   color: #fff;
@@ -124,6 +149,10 @@ const TextGroup = styled(motion.div)`
     color: #fff;
     font-weight: 600;
     letter-spacing: -0.5px;
+    
+    @media (max-width: 768px) {
+      font-size: 1.5rem;
+    }
   }
 
   p {
@@ -131,13 +160,17 @@ const TextGroup = styled(motion.div)`
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.9);
   }
+  
+  @media (max-width: 768px) {
+    margin: 15px 0;
+    padding: 15px;
+  }
 `;
 
 const phoneImages = [
-  "https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-  "https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1267&q=80",
-  "https://images.unsplash.com/photo-1551739440-5dd934d3a94a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1300&q=80",
-  "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+  "/phone_img_1.png",
+  "/phone_img_2.png",
+  "/phone_img_3.png",
 ];
 
 const PhoneShowcase = () => {
@@ -171,7 +204,7 @@ const PhoneShowcase = () => {
   }, []);
 
   return (
-    <ShowcaseSection id="showcase">
+    <ShowcaseSection id="showcase" ref={phoneRef}>
       <ShowcaseContainer>
         <PhoneContainer 
           ref={phoneRef}
@@ -192,14 +225,14 @@ const PhoneShowcase = () => {
                   style={{ backgroundImage: `url(${img})` }}
                   animate={{
                     opacity: [0, 1, 1, 0],
-                    scale: [1, 1.02, 1.02, 1],
+                    scale: [.93, .93, .93],
                   }}
                   transition={{
-                    duration: 5,
+                    duration: 8,
                     times: [0, 0.1, 0.9, 1],
                     repeat: Infinity,
-                    repeatDelay: phoneImages.length * 5 - 5,
-                    delay: index * 5,
+                    repeatDelay: phoneImages.length * 8 - 8,
+                    delay: index * 8,
                     ease: "easeInOut"
                   }}
                 />
@@ -265,12 +298,11 @@ const PhoneShowcase = () => {
             transition={{ duration: 0.5, delay: 0.5 }}
             whileHover={{ scale: 1.02 }}
           >
-            <h2>Security First</h2>
-            <p>Building with security best practices in mind.</p>
+            <h2>AI Integration</h2>
+            <p>Integrating AI into your applications to enhance user experience.</p>
           </TextGroup>
         </Content>
       </ShowcaseContainer>
-      <SectionNavigation />
     </ShowcaseSection>
   );
 };

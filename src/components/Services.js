@@ -1,13 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import SectionNavigation from './SectionNavigation';
 
 const ServicesSection = styled.section`
-  height: 100vh;
-  padding: 100px 0;
+  min-height: 100vh;
+  height: auto;
+  padding: 80px 0;
   overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: center;
+  
+  @media (max-width: 768px) {
+    padding: 40px 0;
+    min-height: auto;
+  }
 `;
 
 const CenteredWrapper = styled.div`
@@ -17,6 +24,10 @@ const CenteredWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    height: auto;
+  }
 `;
 
 const Container = styled.div`
@@ -29,6 +40,11 @@ const Title = styled(motion.h2)`
   text-align: center;
   margin-bottom: 60px;
   color: white;
+  
+  @media (max-width: 768px) {
+    font-size: 2.2rem;
+    margin-bottom: 30px;
+  }
 `;
 
 const ServiceCard = styled(motion.div)`
@@ -39,7 +55,6 @@ const ServiceCard = styled(motion.div)`
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   z-index: 1;
@@ -73,15 +88,21 @@ const ServiceCard = styled(motion.div)`
   &:hover::after {
     opacity: 1;
   }
+  
+  @media (max-width: 768px) {
+    min-width: 240px;
+    padding: 20px;
+  }
 `;
 
 const ServicesContainer = styled.div`
   display: flex;
   gap: 30px;
   padding: 100px;
-  overflow-x: hidden;
+  overflow-x: auto;
   position: relative;
   perspective: 1000px;
+  -webkit-overflow-scrolling: touch;
 
   &::-webkit-scrollbar {
     display: none;
@@ -99,6 +120,11 @@ const ServicesContainer = styled.div`
   &:hover ${ServiceCard}:not(:hover) {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
+  
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+    gap: 20px;
+  }
 `;
 
 const ServiceIcon = styled.div`
@@ -114,6 +140,13 @@ const ServiceIcon = styled.div`
   font-size: 24px;
   backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  
+  @media (max-width: 768px) {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
 `;
 
 const ServiceTitle = styled.h3`
@@ -122,11 +155,20 @@ const ServiceTitle = styled.h3`
   color: #fff;
   font-weight: 600;
   letter-spacing: -0.5px;
+  
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
 `;
 
 const ServiceDescription = styled.p`
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+  }
 `;
 
 const services = [
@@ -144,7 +186,7 @@ const services = [
   },
   {
     title: "API Integration",
-    description: "Seamless integration of third-party APIs including Spotify, YouTube, Google Maps, and more.",
+    description: "Seamless integration of third-party APIs including Shopify, YouTube, Google, and more.",
     icon: "🔌",
     color: "#3b82f6"
   },
@@ -174,6 +216,7 @@ const Services = () => {
   const scrollIntervalRef = React.useRef(null);
   const autoScrollIntervalRef = React.useRef(null);
   const resetTimeoutRef = React.useRef(null);
+  const sectionRef = React.useRef(null);
 
   // Function to handle automatic scrolling
   const startAutoScroll = () => {
@@ -292,7 +335,7 @@ const Services = () => {
   }, [isHovering]);
 
   return (
-    <ServicesSection id="services">
+    <ServicesSection id="services" ref={sectionRef}>
       <CenteredWrapper>
         <Container>
           <Title
@@ -338,7 +381,6 @@ const Services = () => {
           </ServicesContainer>
         </Container>
       </CenteredWrapper>
-      <SectionNavigation />
     </ServicesSection>
   );
 };

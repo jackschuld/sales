@@ -2,12 +2,20 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import emailjs from 'emailjs-com';
-import SectionNavigation from './SectionNavigation';
 
 const ContactSection = styled.section`
-  height: 100vh;
-  padding: 100px 0;
+  min-height: 100vh;
+  height: auto;
+  padding: 80px 0;
   position: relative;
+  display: flex;
+  align-items: center;
+  
+  @media (max-width: 768px) {
+    padding: 40px 0 60px;
+    min-height: auto;
+    margin-bottom: 0;
+  }
 `;
 
 const CenteredWrapper = styled.div`
@@ -17,6 +25,10 @@ const CenteredWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    height: auto;
+  }
 `;
 
 const Container = styled.div`
@@ -30,6 +42,8 @@ const Container = styled.div`
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 0 20px;
   }
 `;
 
@@ -38,12 +52,21 @@ const ContactInfo = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 20px;
+  }
 `;
 
 const Title = styled(motion.h2)`
   font-size: 3rem;
   margin-bottom: 30px;
   color: white;
+  
+  @media (max-width: 768px) {
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+  }
 `;
 
 const Description = styled(motion.p)`
@@ -51,10 +74,19 @@ const Description = styled(motion.p)`
   line-height: 1.6;
   margin-bottom: 40px;
   color: rgba(255, 255, 255, 0.9);
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin-bottom: 30px;
+  }
 `;
 
 const ContactDetails = styled(motion.div)`
   margin-top: 40px;
+  
+  @media (max-width: 768px) {
+    margin-top: 20px;
+  }
 `;
 
 const ContactItem = styled.div`
@@ -92,6 +124,10 @@ const Form = styled(motion.form)`
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
+  
+  @media (max-width: 768px) {
+    padding: 25px;
+  }
 `;
 
 const FormGroup = styled.div`
@@ -146,7 +182,7 @@ const SubmitButton = styled(motion.button)`
   padding: 15px 30px;
   border-radius: 8px;
   font-size: 1.1rem;
-  cursor: pointer;
+  // cursor: pointer;
   width: 100%;
   backdrop-filter: blur(5px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -276,7 +312,7 @@ const Contact = () => {
               </ContactItem>
               <ContactItem>
                 <ContactIcon>📍</ContactIcon>
-                <ContactText>Reno, NV 89509</ContactText>
+                <ContactText>Reno, NV</ContactText>
               </ContactItem>
               <ContactItem>
                 <ContactIcon>🌐</ContactIcon>
@@ -360,7 +396,6 @@ const Contact = () => {
           )}
         </Container>
       </CenteredWrapper>
-      <SectionNavigation />
     </ContactSection>
   );
 };
