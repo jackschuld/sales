@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 
 const HeroSection = styled.section`
   padding: 80px 20px;
@@ -85,6 +86,20 @@ const ScrollIcon = styled.div`
 `;
 
 const Hero = () => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    threshold: 0.3,
+    triggerOnce: false
+  });
+
+  useEffect(() => {
+    if (inView) {
+      controls.start({ opacity: 1, y: 0 });
+    } else {
+      controls.start({ opacity: 0, y: 20 });
+    }
+  }, [controls, inView]);
+
   const scrollToShowcase = () => {
     const showcaseSection = document.getElementById('showcase');
     if (showcaseSection) {
@@ -93,25 +108,25 @@ const Hero = () => {
   };
 
   return (
-    <HeroSection id="home">
+    <HeroSection id="home" ref={ref}>
       <HeroContent>
         <Title
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={controls}
           transition={{ duration: 0.8 }}
         >
           Web Development and Marketing
         </Title>
         <Subtitle
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={controls}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           Increase your online presence!
         </Subtitle>
         <CTAButton
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={controls}
           transition={{ duration: 0.8, delay: 0.4 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
